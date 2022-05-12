@@ -1,1 +1,2 @@
-# T1_ComputerGraphics
+# CG
+Files for the Computer Graphics course in Three.js
