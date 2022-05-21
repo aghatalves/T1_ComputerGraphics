@@ -22,7 +22,7 @@ var cameraHolder = new THREE.Object3D();
     cameraHolder.add(camera);
     scene.add(cameraHolder);
 
-var airplane, missile, background, enemies;
+var airplane, missile, background;
  background = createGroundPlaneWired(70, 70, 50, 50);
     scene.add(background);
 
@@ -88,47 +88,39 @@ function enemy()
 {
     let cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
     const cubeMaterial = new THREE.MeshLambertMaterial({ color: 0xB03014 });
-    let enemies = new THREE.Mesh(cubeGeometry, cubeMaterial);
-    enemies.position.set(x, y, 2.0);
-    background.add(enemies);
-}
 
-/*
+    const enemies = [];
 
+	[...Array(5).keys()].map(y => {
 
-function posicionaAdversario(scene) {
+		getRandomPositions().map(x => { 
+			const e = new Enemy(scene, 200*(x-4), 400*(y+1));
+			enemies.push(e);
+		});
+	});
+        enemies.translateZ(.4);
+	return enemies;
+	
+	function getRandomPositions() {
 
-    const adversarios = [];
+		var noEnemies = Math.floor((Math.random() * 4));	
+		
+		var arr = [...Array(9).keys()];
 
-    [...Array(5).keys()].map(y => {
+		for (let i = arr.length - 1; i > 0; i--) {
+		    
+		    const j = Math.floor(Math.random() * i);
+		    const temp = arr[i];
+		    arr[i] = arr[j];
+		    arr[j] = temp;
+		}
 
-        getRandomPositions().map(x => {
-            const e = new Enemy(scene, 0, 2);
-            adversarios.push(e);
-        });
-    });
-
-    return adversarios;
-
-    function getRandomPositions() {
-
-        var noEnemies = Math.floor((Math.random() * 4));
-
-        var arr = [...Array(9).keys()];
-
-        for (let i = arr.length - 1; i > 0; i--) {
-
-            const j = Math.floor(Math.random() * i);
-            const temp = arr[i];
-            arr[i] = arr[j];
-            arr[j] = temp;
-        }
-
-        return arr.slice(0, noEnemies);
+		return arr.slice(0, noEnemies);
     }
 
+    
 
-}*/
+}
 
 function render() {
     requestAnimationFrame(render);
@@ -136,4 +128,5 @@ function render() {
     //moveCamera(cameraHolder);
     shootMove(missile);
     keyboardUpdate();
+    enemy();
 }
