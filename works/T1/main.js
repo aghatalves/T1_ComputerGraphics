@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { Color } from '../../build/three.module.js';
-//import { Sphere } from '/../../build/three.module';
 import KeyboardState from '../../libs/util/KeyboardState.js';
 import {
     initRenderer,
@@ -10,80 +9,92 @@ import {
     onWindowResize,
     createGroundPlaneWired
 } from "../../libs/util/util.js";
-
+let scene = new THREE.Scene(); 
 const renderer = initRenderer();
+var keyboard = new KeyboardState();
+var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.lookAt(0, -1, -.9);
+    camera.position.set(0, 20, 20);
+    camera.up.set(0, 0, 0);
+    window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
+var cameraHolder = new THREE.Object3D();
+    cameraHolder.add(camera);
+    scene.add(cameraHolder);
+
+var airplane, missile, background, enemies;
+ background = createGroundPlaneWired(70, 70, 50, 50);
+    scene.add(background);
+
+var geometry = new THREE.ConeGeometry(.8, 3, 30);
+var airplaneMaterial = new THREE.MeshLambertMaterial(0xB3B865);
+ airplane = new THREE.Mesh(geometry, airplaneMaterial);
+    airplane.position.set(0, 2, 0);
+    airplane.rotateX(-1.4);
+    cameraHolder.add(airplane);
+
+    const missileGeometry = new THREE.SphereGeometry( 0.4, 14, 10 );
+const material = new THREE.MeshBasicMaterial( { color: 0x202020 } );
+ missile = new THREE.Mesh( missileGeometry, material );
+
+initDefaultBasicLight(scene);
 showInformation();
 render();
 
-function disparaProjeteis() {
-    const ballMaterial = new THREE.MeshLambertMaterial({ color: 0x202020 });
-    const ball = new THREE.Mesh(new THREE.SphereGeometry(0.4, 14, 10), ballMaterial);
-    pos.copy(raycaster.ray.direction);
-    pos.add(raycaster.ray.origin);
-    quat.set(0, 0, 0, 1);
-    const ballBody = createRigidBody(ball, ballShape, 35, pos, quat);
-
-    pos.copy(raycaster.ray.direction);
-    pos.multiplyScalar(24);
+function moveCamera(camera)
+{
+    camera.translateZ(-.1);
 }
 
-function showInformation() {
+function keyboardUpdate() 
+{
+    keyboard.update();
+    if (keyboard.pressed("left")) airplane.translateX(-.3);
+    if (keyboard.pressed("right")) airplane.translateX(.3);
+    if (keyboard.pressed("up")) airplane.translateY(.3);
+    if (keyboard.pressed("down")) airplane.translateY(-.3);
+    if (keyboard.pressed("ctrl")) shoot();
+    if (keyboard.pressed("space")) shoot();
+}
+
+function showInformation() 
+{
     var controls = new InfoBox();
-    controls.add("Computer Graphics");
+    controls.add("Plane Shooter - DCC065 Assignment");
     controls.addParagraph();
     controls.add("Use keyboard arrows to move the airplane");
+    controls.add("Press space or ctrl to shoot the enemies");
+    controls.addParagraph();
+    controls.add("Developer: Ághata S. Alves")
+    controls.addParagraph();
     controls.show();
 }
 
-function Plano(scene, height) {
-
-    var bg = createGroundPlaneWired(70, 70, 50, 50);
-    scene.add(bg);
-
-    this.update = function () {
-
-    }
-
+function shoot()
+{
+    scene.updateMatrixWorld(true);
+    var position = new THREE.Vector3();
+    position.setFromMatrixPosition( airplane.matrixWorld );
+    missile.position.set(position.x, position.y, position.z);
+    scene.add(missile);
 }
 
-function mainAirPlane() {
-
-    const geometry = new THREE.ConeGeometry(.8, 3, 30);
-    const airplaneMaterial = new THREE.MeshLambertMaterial({ color: 0xFAFAD2 });
-    const airplane = new THREE.Mesh(geometry, airplaneMaterial);
-    airplane.position.set(0, 2.4, 0);
-    airplane.rotateX(-1.4);
-
-    this.update = function () {
-        if (this.model)
-            this.model.position.y += 1;
-    }
-
-    var keyboard = new KeyboardState();
-    function keyboardUpdate() {
-        keyboard.update();
-
-        if (keyboard.pressed("left")) airplane.translateX(-1);
-        if (keyboard.pressed("right")) airplane.translateX(1);
-        if (keyboard.pressed("up")) airplane.translateY(1);
-        if (keyboard.pressed("down")) airplane.translateY(-1);
-        if (keyboard.pressed("ctrl")) disparaProjeteis();
-        if (keyboard.pressed("space")) disparaProjeteis();
-    }
-    keyboardUpdate();
-    scene.add(airplane);
-
+function shootMove(missile) 
+{
+    missile.translateZ(-.4);
 }
 
-function Enemy(scene, x, y) {
-
+function enemy() 
+{
     let cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
     const cubeMaterial = new THREE.MeshLambertMaterial({ color: 0xB03014 });
-    let adversario = new THREE.Mesh(cubeGeometry, cubeMaterial);
-    adversario.position.set(x, y, 2.0);
-    scene.add(adversario);
+    let enemies = new THREE.Mesh(cubeGeometry, cubeMaterial);
+    enemies.position.set(x, y, 2.0);
+    background.add(enemies);
 }
+
+/*
+
 
 function posicionaAdversario(scene) {
 
@@ -117,61 +128,12 @@ function posicionaAdversario(scene) {
     }
 
 
-}
-
-function cenarioControl() {
-
-    const scene = new THREE.Scene();
-
-    var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.lookAt(0, -1, -.9);
-    camera.position.set(0, 20, 20);
-    camera.up.set(0, 0, 0);
-    window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
-
-
-    var cameraHolder = new THREE.Object3D();
-    cameraHolder.add(camera);
-    scene.add(cameraHolder);
-
-    var aviao, fundo, adversarios;
-
-    initDefaultBasicLight(scene);
-
-    const dynamicSubjects = [];
-    criaObjetos();
-
-    var keyMap = [];
-
-    function criaObjetos() {
-        fundo = new Plano(scene);
-        aviao = new mainAirPlane(scene);
-        adversarios = posicionaAdversario(scene);
-
-        dynamicSubjects.push(aviao);
-    }
-
-    cenarioControl.update = function () {
-        if (camera.position.y < 2000) {
-            camera.position.y += 1;
-
-            //for (let i = 0; i < dynamicSubjects.length; i++)
-            //  dynamicSubjects[i].update();
-
-            //aviao.handleInput(keyMap, camera);
-
-            renderer.render(scene, camera);
-        }
-    }
-
-    //cenarioControl.handleInput = function (keyCode, isDown) {
-    //  keyMap[keyCode] = isDown;
-    //}
-
-}
+}*/
 
 function render() {
-    cenarioControl();
     requestAnimationFrame(render);
-    cenarioControl.update();
+    renderer.render(scene, camera)
+    //moveCamera(cameraHolder);
+    shootMove(missile);
+    keyboardUpdate();
 }
