@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { Color } from '../../build/three.module.js';
+import { Color, CullFaceNone } from '../../build/three.module.js';
 import KeyboardState from '../../libs/util/KeyboardState.js';
 import {
     initRenderer,
@@ -23,8 +23,12 @@ var cameraHolder = new THREE.Object3D();
     scene.add(cameraHolder);
 
 var airplane, missile, background;
- background = createGroundPlaneWired(70, 70, 50, 50);
+
+ background = createGroundPlaneWired(80, 80, 50, 50);
     scene.add(background);
+
+assistantBackground = createGroundPlaneWired(80,80,50,50);
+scene.add(assistantBackground);
 
 var geometry = new THREE.ConeGeometry(.8, 3, 30);
 var airplaneMaterial = new THREE.MeshLambertMaterial(0xB3B865);
@@ -33,9 +37,13 @@ var airplaneMaterial = new THREE.MeshLambertMaterial(0xB3B865);
     airplane.rotateX(-1.4);
     cameraHolder.add(airplane);
 
-    const missileGeometry = new THREE.SphereGeometry( 0.4, 14, 10 );
+const missileGeometry = new THREE.SphereGeometry( 0.4, 14, 10 );
 const material = new THREE.MeshBasicMaterial( { color: 0x202020 } );
  missile = new THREE.Mesh( missileGeometry, material );
+
+ let cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
+    const cubeMaterial = new THREE.MeshLambertMaterial({ color: 0xB03014 });
+    var enemy = new THREE.Mesh(cubeGeometry,cubeMaterial);
 
 initDefaultBasicLight(scene);
 showInformation();
@@ -86,15 +94,22 @@ function shootMove(missile)
 
 function enemy() 
 {
+    scene.updateMatrixWorld(true);
+    var position = new THREE.Vector3();
+    position.setFromMatrixPosition( background.matrixWorld );
+    enemy.position.set(0, background, position.z);
+    background.add(enemy);
+    /*
     let cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
     const cubeMaterial = new THREE.MeshLambertMaterial({ color: 0xB03014 });
-
+    var cube = new THREE.Mesh(cubeGeometry,cubeMaterial);
+    cube.position.set(0,7,2);
     const enemies = [];
 
 	[...Array(5).keys()].map(y => {
 
 		getRandomPositions().map(x => { 
-			const e = new Enemy(scene, 200*(x-4), 400*(y+1));
+			const e = new THREE.Mesh(cubeGeometry,cubeMaterial);
 			enemies.push(e);
 		});
 	});
@@ -116,10 +131,13 @@ function enemy()
 		}
 
 		return arr.slice(0, noEnemies);
-    }
+    }*/
 
-    
+}
 
+function enemyMovement()
+{
+    cube.translateY(-.4);
 }
 
 function render() {
@@ -128,5 +146,5 @@ function render() {
     //moveCamera(cameraHolder);
     shootMove(missile);
     keyboardUpdate();
-    enemy();
+    enemyMovement();
 }
