@@ -58,14 +58,9 @@ function showInformation()
     controls.show();
 }
 
-function enemyMovement()
-{
-    enemies.translateY(-.4);
-}
-
 function render() {
     requestAnimationFrame(render);
     renderer.render(scene, camera)
-    //movingCamera(cameraHolder);
+    movingCamera(cameraHolder);
     keyboardUpdate();
 }
