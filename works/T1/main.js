@@ -20,7 +20,7 @@ var cameraHolder = new THREE.Object3D();
  var background = createGroundPlaneWired(80, 80, 50, 50);
  background.position.set(0,20,20);
     scene.add(background);
-    scene.add(airplane);
+    cameraHolder.add(airplane);
 
 var assistantBackground = createGroundPlaneWired(80,80,50,50);
 scene.add(assistantBackground);
