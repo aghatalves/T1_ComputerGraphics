@@ -4,6 +4,10 @@ import { Color, CullFaceNone } from '../../build/three.module.js';
 import checkingCollision from "./collisionMechanic.js";
 import * as THREE from "three";
 
+var angle = 0;
+var angle2 = 0;
+var speed = 0.05;
+var animationOn = true;
 export var enemy = [];
 export function placeEnemy() {
   let cubeGeometry = new THREE.BoxGeometry(2, 2, 2);
@@ -17,14 +21,14 @@ export function placeEnemy() {
   setInterval(() => {
     theEnemy.translateZ(0.2);
     if (theEnemy.position.z <= -100) {
-      scene.remove(theEnemy);
+      cameraHolder.remove(theEnemy);
       enemy = enemy.filter((e) => e.id !== theEnemy.id);
       return;
     }
 
     if (checkingCollision(airplane, theEnemy)) {
-      scene.remove(theEnemy);
-      deathAnimation();
+      cameraHolder.remove(theEnemy);
+      //deathAnimation();
       reset();
       return;
     }
@@ -34,6 +38,25 @@ export function placeEnemy() {
 
 function deathAnimation() {
   setInterval(() => {
-    airplane.rotateY(-1);
-  }, "10000");
+    airplane.matrixAutoUpdate = false;
+
+  // Set angle's animation speed
+  if(animationOn)
+  {
+    angle+=speed;
+    angle2+=speed*2;
+    
+    var mat4 = new THREE.Matrix4();
+    cylinder.matrix.identity();  // reset matrix
+
+    // Will execute T1 and then R1
+    cylinder.matrix.multiply(mat4.makeRotationZ(angle)); // R1
+    cylinder.matrix.multiply(mat4.makeTranslation(0.0, 1.0, 0.0)); // T1
+
+    // Will execute R2, T1 and R1 in this order
+    cylinder2.matrix.multiply(mat4.makeRotationY(angle2)); // R1
+    cylinder2.matrix.multiply(mat4.makeTranslation(0.0, 1.0, 0.0)); // T1
+    cylinder2.matrix.multiply(mat4.makeRotationX(degreesToRadians(90))); // R2
+  }
+  }, "10");
 }

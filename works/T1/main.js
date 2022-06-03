@@ -62,7 +62,7 @@ function placingScene() {
     return;
 }
 
-setInterval(placingScene, "1500");
+setInterval(placingScene, "500");
 
 function showInformation() {
     var controls = new InfoBox();
