@@ -1,15 +1,15 @@
 import * as THREE from 'three';
-import { Color, CullFaceNone } from '../../build/three.module.js';
-import KeyboardState from '../../libs/util/KeyboardState.js';
 import { keyboardUpdate, airplane, missiles } from "./airplane.js";
-import { placeEnemy, enemy } from "./enemySettings.js";
+import { placeVerticalEnemy, placeHorizontalEnemy, placeReverseHorizontalEnemy, enemy } from "./enemySettings.js";
 import { initRenderer, initDefaultBasicLight, InfoBox, onWindowResize, createGroundPlaneWired } from "../../libs/util/util.js";
+
+
 
 export var scene = new THREE.Scene();
 const renderer = initRenderer();
 export var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 camera.lookAt(0, -1, -.9);
-camera.position.set(0, 20, 20);
+camera.position.set(0, 45, 50);
 camera.up.set(0, 0, 0);
 window.addEventListener('resize', function () { onWindowResize(camera, renderer) }, false);
 
@@ -17,11 +17,13 @@ export var cameraHolder = new THREE.Object3D();
 cameraHolder.add(camera);
 scene.add(cameraHolder);
 
-var backgrounds = [];
-
-var background = createGroundPlaneWired(80, 80, 50, 50);
+var background = createGroundPlaneWired(180, 180, 80, 80);
 background.position.set(0, 0, 0);
 scene.add(background);
+
+var backgorundAux = createGroundPlaneWired(180, 180, 80, 80);
+backgorundAux.position.set(0,0,-180);
+scene.add(backgorundAux);
 cameraHolder.add(airplane);
 
 var Zposition = 1;
@@ -40,29 +42,13 @@ export function reset() {
     });
     enemy.length = 0;
     missiles.length = 0;
-    airplane.position.set(0, 2.5, 0);
+    airplane.position.set(0, 27, 40);
 }
 
-setInterval(placeEnemy, "3000");
-
-function placingScene() {
-    var backgroundAssistant = createGroundPlaneWired(80, 80, 50, 50);
-    scene.add(backgroundAssistant);
-    backgrounds.push(backgroundAssistant);
-    var nextZPosition = Zposition * -72;
-    backgroundAssistant.position.set(0, 0, nextZPosition);
-    Zposition++;
-    var aux = 1;
-    if (cameraHolder.position.z <= aux * -50) {
-        scene.remove(backgroundAssistant); 0
-        backgrounds = backgrounds.filter((e) => e.id !== backgroundAssistant.id);
-        aux++;
-        return;
-    }
-    return;
-}
-
-setInterval(placingScene, "500");
+setInterval(placeVerticalEnemy, "3000");
+setInterval(placeHorizontalEnemy, "3000");
+setInterval(placeReverseHorizontalEnemy, "3000");
+//setInterval(placingScene, "500");
 
 function showInformation() {
     var controls = new InfoBox();
@@ -79,6 +65,6 @@ function showInformation() {
 function render() {
     requestAnimationFrame(render);
     renderer.render(scene, camera)
-    movingCamera(cameraHolder);
+    //movingCamera(cameraHolder);
     keyboardUpdate();
 }

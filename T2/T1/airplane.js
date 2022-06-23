@@ -1,16 +1,15 @@
 import * as THREE from 'three';
-import { Color, CullFaceNone } from '../../build/three.module.js';
 import KeyboardState from '../../libs/util/KeyboardState.js';
-import { placeEnemy, enemy } from "./enemySettings.js";
+import { enemy, enemy2, enemy3 } from "./enemySettings.js";
 import { cameraHolder, reset, scene } from "./main.js";
 import checkingCollision from "./collisionMechanic.js";
 import { degreesToRadians } from "../../libs/util/util.js";
 
-const geometry = new THREE.ConeGeometry(.8, 3, 30);
+const geometry = new THREE.ConeGeometry(.7, 2.7, 30);
 const airplaneMaterial = new THREE.MeshLambertMaterial({ color: 0xFAFAD2 });
 export var airplane = new THREE.Mesh(geometry, airplaneMaterial);
 export var cd = 0;
-airplane.position.set(0, 2.5, 0);
+airplane.position.set(0, 27, 40);
 airplane.rotateX(degreesToRadians(-90));
 
 var keyboard = new KeyboardState();
@@ -50,6 +49,26 @@ export function shoot() {
         enemyHit.position.set(0, 0, 0);
         cameraHolder.remove(enemyHit);
         scene.remove(enemyHit);
+        return;
+      }
+    });
+    enemy2.forEach((enemyHit2) => {
+      if (checkingCollision(missile, enemyHit2)) {
+        cameraHolder.remove(missile);
+        scene.remove(missile);
+        enemyHit2.position.set(0, 0, 0);
+        cameraHolder.remove(enemyHit2);
+        scene.remove(enemyHit2);
+        return;
+      }
+    });
+    enemy3.forEach((enemyHit3) => {
+      if (checkingCollision(missile, enemyHit3)) {
+        cameraHolder.remove(missile);
+        scene.remove(missile);
+        enemyHit3.position.set(0, 0, 0);
+        cameraHolder.remove(enemyHit3);
+        scene.remove(enemyHit3);
         return;
       }
     });
